@@ -10,6 +10,7 @@
 		F8E517B921B7164D00BFABE4 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E517B821B7164D00BFABE4 /* main.swift */; };
 		F8E517C021B718D500BFABE4 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8E517BF21B718D500BFABE4 /* Alamofire.framework */; };
 		F8E517C121B7191B00BFABE4 /* Alamofire.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = F8E517BF21B718D500BFABE4 /* Alamofire.framework */; };
+		F8E517C321B71BC700BFABE4 /* FourByFive.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E517C221B71BC700BFABE4 /* FourByFive.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,6 +30,7 @@
 		F8E517B521B7164D00BFABE4 /* fourbyfive */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fourbyfive; sourceTree = BUILT_PRODUCTS_DIR; };
 		F8E517B821B7164D00BFABE4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F8E517BF21B718D500BFABE4 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/Mac/Alamofire.framework; sourceTree = "<group>"; };
+		F8E517C221B71BC700BFABE4 /* FourByFive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourByFive.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				F8E517B821B7164D00BFABE4 /* main.swift */,
+				F8E517C221B71BC700BFABE4 /* FourByFive.swift */,
 			);
 			path = fourbyfive;
 			sourceTree = "<group>";
@@ -125,6 +128,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8E517C321B71BC700BFABE4 /* FourByFive.swift in Sources */,
 				F8E517B921B7164D00BFABE4 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
