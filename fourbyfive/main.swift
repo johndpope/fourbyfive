@@ -14,3 +14,6 @@ print("Hello, World!")
 let fourbyfive = FourByFive();
 
 fourbyfive.login();
+
+print("s33krit".hmac(algorithm: .sha256, key: PRIVATE_KEY.SIG_KEY))
+

@@ -9,6 +9,12 @@
 import Foundation
 import Alamofire
 
+struct PRIVATE_KEY {
+    static let SIG_KEY = "109513c04303341a7daf27bb41b268e633b30dcc65a3fe14503f743176113869"
+    static let SIG_VERSION = "4"
+    static let APP_VERSION = "27.0.0.7.97"
+}
+
 class FourByFive {
     
     private let queue: DispatchQueue = DispatchQueue(label: "com.instagram.api", qos: .background, attributes: .concurrent)

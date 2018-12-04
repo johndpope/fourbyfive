@@ -11,6 +11,7 @@
 		F8E517C021B718D500BFABE4 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8E517BF21B718D500BFABE4 /* Alamofire.framework */; };
 		F8E517C121B7191B00BFABE4 /* Alamofire.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = F8E517BF21B718D500BFABE4 /* Alamofire.framework */; };
 		F8E517C321B71BC700BFABE4 /* FourByFive.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E517C221B71BC700BFABE4 /* FourByFive.swift */; };
+		F8E517CF21B735FB00BFABE4 /* HMAC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E517CE21B735FB00BFABE4 /* HMAC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,8 @@
 		F8E517B821B7164D00BFABE4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F8E517BF21B718D500BFABE4 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = Carthage/Build/Mac/Alamofire.framework; sourceTree = "<group>"; };
 		F8E517C221B71BC700BFABE4 /* FourByFive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourByFive.swift; sourceTree = "<group>"; };
+		F8E517CE21B735FB00BFABE4 /* HMAC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HMAC.swift; sourceTree = "<group>"; };
+		F8E517D021B737E700BFABE4 /* fourbyfive-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "fourbyfive-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +70,8 @@
 			children = (
 				F8E517B821B7164D00BFABE4 /* main.swift */,
 				F8E517C221B71BC700BFABE4 /* FourByFive.swift */,
+				F8E517CE21B735FB00BFABE4 /* HMAC.swift */,
+				F8E517D021B737E700BFABE4 /* fourbyfive-Bridging-Header.h */,
 			);
 			path = fourbyfive;
 			sourceTree = "<group>";
@@ -103,6 +108,7 @@
 				TargetAttributes = {
 					F8E517B421B7164D00BFABE4 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1010;
 					};
 				};
 			};
@@ -130,6 +136,7 @@
 			files = (
 				F8E517C321B71BC700BFABE4 /* FourByFive.swift in Sources */,
 				F8E517B921B7164D00BFABE4 /* main.swift in Sources */,
+				F8E517CF21B735FB00BFABE4 /* HMAC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -256,10 +263,16 @@
 		F8E517BD21B7164D00BFABE4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
 				);
 				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = (
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
@@ -268,6 +281,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_FORCE_DYNAMIC_LINK_STDLIB = YES;
 				SWIFT_FORCE_STATIC_LINK_STDLIB = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "fourbyfive/fourbyfive-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
@@ -275,10 +290,16 @@
 		F8E517BE21B7164D00BFABE4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
 				);
 				"LD_RUNPATH_SEARCH_PATHS[arch=*]" = (
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
@@ -287,6 +308,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_FORCE_DYNAMIC_LINK_STDLIB = YES;
 				SWIFT_FORCE_STATIC_LINK_STDLIB = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "fourbyfive/fourbyfive-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
