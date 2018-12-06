@@ -11,9 +11,13 @@ import Alamofire
 
 print("Hello, World!")
 
-let fourbyfive = FourByFive();
+//print(2 * Int.max)
 
-fourbyfive.login();
+let device = Device("username")
 
-print("s33krit".hmac(algorithm: .sha256, key: PRIVATE_KEY.SIG_KEY))
+print("device: \(device)")
+
+let instagram = Instagram(device: device);
+
+instagram.login(password: "password");
 
