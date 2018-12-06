@@ -10,6 +10,7 @@ import Foundation
 import Alamofire
 
 struct Login : Codable {
+    let _csrftoken: String
     let device_id: String
     let username: String
     let password: String
@@ -28,6 +29,8 @@ class Instagram {
             "Accept-Encoding": "gzip, deflate, sdch",
             "Connection": "Close"
         ]
+    
+    private var csrftoken: String? = nil
     
     private let device: Device
     
@@ -51,6 +54,7 @@ class Instagram {
         )
         
         let login = Login(
+            _csrftoken: self.csrftoken!,
             device_id: self.device.id,
             username: self.device.username,
             password: password,
@@ -72,7 +76,7 @@ class Instagram {
         let endpoint = "https://\(HOSTNAME)/api/v1/accounts/login/"
         //let endpoint = "https://httpbin.org/get"
         
-        self.sync { semaphore in
+        return self.sync { semaphore in
             
             Alamofire
                 .request(endpoint, method: .post, parameters: params, headers: headers)
@@ -85,9 +89,43 @@ class Instagram {
         }
     }
     
-    func sync(call: (DispatchSemaphore) -> ()) {
+    func getCsrfToken() -> String? {
+        
+        if let csrftoken = self.csrftoken {
+            return csrftoken
+        }
+        
+        let endpoint = "https://\(HOSTNAME)/api/v1/si/fetch_headers/?challenge_type=signup&guid=\(UUID().asString(keepDashes: false))"
+        
+        let headers = self.defaultHeaders.merging(
+            ["User-Agent": self.device.userAgent],
+            uniquingKeysWith: { (first, _) in first }
+        )
+        
+        return self.sync { semaphore in
+            
+            Alamofire
+                .request(endpoint, method: .post, parameters: [:], headers: headers)
+                .response(queue: queue) { response in
+                    
+                    if let headers = response.response?.allHeaderFields {
+                        let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers as! [String : String], for: response.request!.url!)
+                        self.csrftoken = cookies.first(where: { $0.name == "csrftoken" })?.value
+                        print("Done: \(self.csrftoken)")
+                        semaphore.signal()
+                    }
+                    
+            }
+            
+            return self.csrftoken
+        }
+        
+    }
+    
+    func sync<T>(call: (DispatchSemaphore) -> T) -> T {
         let semaphore = DispatchSemaphore(value: 0)
-        call(semaphore)
+        let result = call(semaphore)
         _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        return result
     }
 }

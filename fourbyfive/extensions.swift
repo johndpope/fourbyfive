@@ -18,3 +18,16 @@ extension String: ParameterEncoding {
     }
     
 }
+
+extension UUID {
+    
+    func asString(keepDashes: Bool) -> String {
+        let text = "\(self)"
+        if (keepDashes) {
+            return text
+        } else {
+            return text.replacingOccurrences(of: "-", with: "")
+        }
+    }
+    
+}

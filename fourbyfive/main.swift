@@ -19,5 +19,6 @@ print("device: \(device)")
 
 let instagram = Instagram(device: device);
 
-instagram.login(password: "password");
+_ = instagram.getCsrfToken()
+instagram.login(password: "passsword")
 
