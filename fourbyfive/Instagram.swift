@@ -102,23 +102,23 @@ class Instagram {
             uniquingKeysWith: { (first, _) in first }
         )
         
-        return self.sync { semaphore in
-            
-            Alamofire
-                .request(endpoint, method: .post, parameters: [:], headers: headers)
-                .response(queue: queue) { response in
-                    
-                    if let headers = response.response?.allHeaderFields {
-                        let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers as! [String : String], for: response.request!.url!)
-                        self.csrftoken = cookies.first(where: { $0.name == "csrftoken" })?.value
-                        print("Done: \(self.csrftoken)")
-                        semaphore.signal()
-                    }
-                    
-            }
-            
-            return self.csrftoken
+        let semaphore = DispatchSemaphore(value: 0)
+        
+        Alamofire
+            .request(endpoint, method: .post, parameters: [:], headers: headers)
+            .response(queue: queue) { response in
+                
+                if let headers = response.response?.allHeaderFields {
+                    let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers as! [String : String], for: response.request!.url!)
+                    self.csrftoken = cookies.first(where: { $0.name == "csrftoken" })?.value
+                    print("Done: \(self.csrftoken)")
+                    semaphore.signal()
+                }
         }
+        
+        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        
+        return self.csrftoken
         
     }
     
