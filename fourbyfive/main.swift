@@ -11,15 +11,7 @@ import Alamofire
 
 print("Hello, World!")
 
-//print(2 * Int.max)
+let instagram = Instagram(username: "");
 
-let device = Device("username")
-
-print("device: \(device)")
-
-let instagram = Instagram(device: device);
-
-let token = instagram.getCsrfToken()
-print("token: \(token)")
-instagram.login(password: "passsword")
+instagram.login(password: "")
 

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F850B59721B853F3007EFD9F /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = F850B59621B853F3007EFD9F /* Device.swift */; };
 		F850B59921B86B04007EFD9F /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = F850B59821B86B04007EFD9F /* Hash.swift */; };
 		F850B59D21B87BA2007EFD9F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F850B59C21B87BA2007EFD9F /* Constants.swift */; };
 		F8985F3E21B88990000A33E8 /* devices.json in Resources */ = {isa = PBXBuildFile; fileRef = F8985F3D21B88990000A33E8 /* devices.json */; };
@@ -35,7 +34,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F850B59621B853F3007EFD9F /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		F850B59821B86B04007EFD9F /* Hash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hash.swift; sourceTree = "<group>"; };
 		F850B59C21B87BA2007EFD9F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		F8985F3D21B88990000A33E8 /* devices.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = devices.json; sourceTree = "<group>"; };
@@ -84,7 +82,6 @@
 				F8E517C221B71BC700BFABE4 /* Instagram.swift */,
 				F8E517CE21B735FB00BFABE4 /* HMAC.swift */,
 				F8E517D021B737E700BFABE4 /* fourbyfive-Bridging-Header.h */,
-				F850B59621B853F3007EFD9F /* Device.swift */,
 				F850B59821B86B04007EFD9F /* Hash.swift */,
 				F850B59C21B87BA2007EFD9F /* Constants.swift */,
 				F8985F3D21B88990000A33E8 /* devices.json */,
@@ -168,7 +165,6 @@
 				F8E517B921B7164D00BFABE4 /* main.swift in Sources */,
 				F8985F4121B8A053000A33E8 /* extensions.swift in Sources */,
 				F8E517CF21B735FB00BFABE4 /* HMAC.swift in Sources */,
-				F850B59721B853F3007EFD9F /* Device.swift in Sources */,
 				F850B59D21B87BA2007EFD9F /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

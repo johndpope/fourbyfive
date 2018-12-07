@@ -10,6 +10,7 @@ import Foundation
 import Alamofire
 
 struct Login : Codable {
+    let guid: String
     let _csrftoken: String
     let device_id: String
     let username: String
@@ -21,72 +22,51 @@ class Instagram {
     
     private let defaultHeaders: [String : String] =
         [
-            "X-IG-Connection-Type": "WIFI",
-            "X-IG-Capabilities": "3QI=",
-            "Accept-Language": "en-US",
-            "Host": HOSTNAME,
+            "Connection": "close",
             "Accept": "*/*",
-            "Accept-Encoding": "gzip, deflate, sdch",
-            "Connection": "Close"
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Cookie2": "$Version=1",
+            "Accept-Language": "en-US",
+            "User-Agent": Constants.Device.userAgent
         ]
     
     private var csrftoken: String? = nil
     
-    private let device: Device
+    private let username: String
+    
+    private let deviceId: String
+    
+    private let guid: String = UUID().asString(keepDashes: false)
+    
+    private let adid: String = UUID().asString(keepDashes: true)
     
     private let encoder = JSONEncoder()
     
     private let queue: DispatchQueue = DispatchQueue(label: "com.instagram.api", qos: .background, attributes: .concurrent)
     
     init(username: String) {
-        self.device = Device(username)
+        self.username = username
+        self.deviceId = "android-\(self.username.md5()!.prefix(16))"
     }
     
-    init(device: Device) {
-        self.device = device
-    }
     
     func login(password: String) {
         
-        let headers = self.defaultHeaders.merging(
-            ["User-Agent": self.device.userAgent],
-            uniquingKeysWith: { (first, _) in first }
-        )
+//        self.msisdn()
+//        self.syncFeatures()
+//        self.zeroRatingToken()
+//        self.logAttribution()
         
         let login = Login(
-            _csrftoken: self.csrftoken!,
-            device_id: self.device.id,
-            username: self.device.username,
+            guid: self.guid,
+            _csrftoken: self.getCsrfToken()!,
+            device_id: self.deviceId,
+            username: self.username,
             password: password,
             login_attempt_count: 0
         )
         
-        let json = try? self.encoder.encode(login)
-        let text = String(data: json!, encoding: .utf8)!
-        let signature = text.hmac(algorithm: .sha256, key: SIG_KEY)
-        let body = "\(signature).\(text)"
-        
-        print("body: \(body)")
-        
-        let params = [
-            "ig_sig_key_version": SIG_VERSION,
-            "signed_body": body
-        ]
-        
-        let endpoint = "https://\(HOSTNAME)/api/v1/accounts/login/"
-        //let endpoint = "https://httpbin.org/get"
-        
-        return self.sync { semaphore in
-            
-            Alamofire
-                .request(endpoint, method: .post, parameters: params, headers: headers)
-                .responseJSON(queue: queue) { response in
-                    if let json = response.result.value {
-                        print(json)
-                    }
-                    semaphore.signal()
-            }
-        }
+        self.post(endpoint: "accounts/login/", request: login)
     }
     
     func getCsrfToken() -> String? {
@@ -95,23 +75,21 @@ class Instagram {
             return csrftoken
         }
         
-        let endpoint = "https://\(HOSTNAME)/api/v1/si/fetch_headers/?challenge_type=signup&guid=\(UUID().asString(keepDashes: false))"
+        let endpoint = "\(Constants.Api.url)si/fetch_headers/?challenge_type=signup&guid=\(self.guid)"
         
-        let headers = self.defaultHeaders.merging(
-            ["User-Agent": self.device.userAgent],
-            uniquingKeysWith: { (first, _) in first }
-        )
         
         let semaphore = DispatchSemaphore(value: 0)
         
         Alamofire
-            .request(endpoint, method: .post, parameters: [:], headers: headers)
+            .request(endpoint, method: .post, parameters: [:], headers: self.defaultHeaders)
             .response(queue: queue) { response in
                 
                 if let headers = response.response?.allHeaderFields {
+                    
+                    
                     let cookies = HTTPCookie.cookies(withResponseHeaderFields: headers as! [String : String], for: response.request!.url!)
+                    
                     self.csrftoken = cookies.first(where: { $0.name == "csrftoken" })?.value
-                    print("Done: \(self.csrftoken)")
                     semaphore.signal()
                 }
         }
@@ -122,10 +100,66 @@ class Instagram {
         
     }
     
+    func msisdn() -> Void {
+        
+        let request = [
+            "devide_id": self.deviceId,
+            "_csrftoken": self.getCsrfToken()!
+        ]
+        
+        self.post(endpoint: "accounts/read_msisdn_header/", request: request)
+    }
+    
+    func syncFeatures() -> Void {
+        
+        let request = [
+            "id": self.guid,
+            "experiments": Constants.Device.experiments
+        ]
+        
+        self.post(endpoint: "qe/sync/", request: request)
+    }
+    
+    func zeroRatingToken() -> Void {
+        
+        self.post(endpoint: "zr/token/result/", request: ["token_hash" : ""])
+    }
+    
+    func logAttribution() {
+        self.post(endpoint: "attribution/log_attribution/", request: ["advertising_id": self.adid])
+    }
+    
+    func post<R : Codable>(endpoint: String, request: R) -> Void {
+        
+        self.sync { semaphore in
+            
+            let url = "\(Constants.Api.url)\(endpoint)"
+        
+            let json = try? self.encoder.encode(request)
+            let text = String(data: json!, encoding: .utf8)!
+            let signature = text.hmac(algorithm: .sha256, key: Constants.Api.key)
+            let body = "\(signature).\(text)"
+            
+            let params = [
+                "ig_sig_key_version": Constants.Api.keyVersion,
+                "signed_body": body
+            ]
+            
+            Alamofire
+                .request(url, method: .post, parameters: params, headers: self.defaultHeaders)
+                .responseJSON(queue: queue) { response in
+                    defer { semaphore.signal() }
+                    if let json = response.result.value {
+                        print(json)
+                    }
+            }
+        }
+    }
+    
     func sync<T>(call: (DispatchSemaphore) -> T) -> T {
         let semaphore = DispatchSemaphore(value: 0)
+        defer { _ = semaphore.wait(timeout: DispatchTime.distantFuture) }
         let result = call(semaphore)
-        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
         return result
     }
 }
