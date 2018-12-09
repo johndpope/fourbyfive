@@ -29,6 +29,8 @@ struct Constants {
          * API Key Version
          */
         public static let keyVersion = "4";
+        
+        public static let imageCompression = "{\"lib_name\":\"jt\",\"lib_version\":\"1.3.0\",\"quality\":\"87\"}";
     }
     
     struct Device {

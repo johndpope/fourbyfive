@@ -6,17 +6,9 @@
 //  Copyright © 2018 Mikolaj Wielocha. All rights reserved.
 //
 
+import AppKit
 import Foundation
 import Alamofire
-
-struct Login : Codable {
-    let guid: String
-    let _csrftoken: String
-    let device_id: String
-    let username: String
-    let password: String
-    let login_attempt_count: Int
-}
 
 class Instagram {
     
@@ -42,11 +34,33 @@ class Instagram {
     
     private let encoder = JSONEncoder()
     
+    private var user: User?
+    
+    private var rankToken: String? {
+        get {
+            if let user = self.user {
+                return "\(user.pk)_\(self.guid)"
+            } else {
+                return nil
+            }
+        }
+    }
+    
     private let queue: DispatchQueue = DispatchQueue(label: "com.instagram.api", qos: .background, attributes: .concurrent)
     
     init(username: String) {
         self.username = username
         self.deviceId = "android-\(self.username.md5()!.prefix(16))"
+    }
+    
+    private var isLoggedIn: Bool {
+        get {
+            if let _ = self.user {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
     
     
@@ -66,7 +80,16 @@ class Instagram {
             login_attempt_count: 0
         )
         
-        self.post(endpoint: "accounts/login/", request: login)
+        self.post(endpoint: "accounts/login/", request: login) { json in
+            let decoder = JSONDecoder()
+            print("Login: \(json)")
+            do {
+                self.user = try decoder.decode(LoginResponse.self, from: json).logged_in_user
+                print("user: \(self.user!)")
+            } catch {
+                print("Error decoding json")
+            }
+        }
     }
     
     func getCsrfToken() -> String? {
@@ -129,7 +152,7 @@ class Instagram {
         self.post(endpoint: "attribution/log_attribution/", request: ["advertising_id": self.adid])
     }
     
-    func post<R : Codable>(endpoint: String, request: R) -> Void {
+    func post<R : Codable>(endpoint: String, request: R, complete: ((_ data: Data) -> Void)? = nil) -> Void {
         
         self.sync { semaphore in
             
@@ -147,12 +170,99 @@ class Instagram {
             
             Alamofire
                 .request(url, method: .post, parameters: params, headers: self.defaultHeaders)
-                .responseJSON(queue: queue) { response in
+                .response(queue: queue) { response in
                     defer { semaphore.signal() }
-                    if let json = response.result.value {
-                        print(json)
+                    if let json = response.data {
+                        //print("Response: \(response)")
+                        print("json: \(String(data: json, encoding: .utf8)!)")
+                        if let complete = complete {
+                            complete(json)
+                        }
                     }
             }
+        }
+    }
+    
+    func upload(file: String, caption: String) -> Void {
+        
+        guard self.isLoggedIn else {
+            print("Not logged in!")
+            return;
+        }
+        
+        print("Uploading: \(file)")
+        
+        let uploadId = getCurrentMillis()
+    
+        let fileUrl: URL = URL(fileURLWithPath: file)
+        
+        let headers = [
+            "X-IG-Capabilities": "3Q4=",
+            "X-IG-Connection-Type": "WIFI",
+            "Cookie2": "$Version=1",
+            "Accept-Language": "en-US",
+            "Accept-Encoding": "gzip, deflate",
+            "Connection": "close",
+            //"Content-Type": "multipart/form-data; boundary=\(self.guid)",
+            "User-Agent": Constants.Device.userAgent,
+        ]
+        
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                multipartFormData.append("\(self.guid)".utf8(), withName: "_uuid")
+                multipartFormData.append("\(uploadId)".utf8(), withName: "upload_id")
+                multipartFormData.append("\(self.getCsrfToken()!)".utf8(), withName: "_csrftoken")
+                multipartFormData.append(Constants.Api.imageCompression.utf8(), withName: "image_compression")
+                multipartFormData.append(fileUrl, withName: "photo", fileName: "pending_media_\(uploadId).jpg", mimeType: "application/octet-stream")
+        },
+            to: "\(Constants.Api.url)upload/photo/",
+            method: .post,
+            headers: headers
+        ) { result in
+            
+            print("Upload is done!")
+            
+            switch result {
+            case .success(let upload, _, _):
+                print("Upload was as success!")
+                upload.responseJSON { response in
+                    print("Upload response: \(response)")
+                    self.configure(
+                        uploadId: "\(uploadId)",
+                        fileUrl: fileUrl,
+                        caption: caption
+                    )
+                }
+                
+            case .failure(let encodingError):
+                
+                print("Error uploading: \(encodingError)")
+                
+            }
+        }
+        
+    }
+    
+    private func configure(uploadId: String, fileUrl: URL, caption: String) -> Void {
+        
+        print("configuring: \(uploadId)")
+    
+        if let size = fileUrl.getImageSize() {
+         
+            let request = Configure(
+                _csrftoken: self.getCsrfToken()!,
+                _uid: self.user!.pk,
+                _uuid: self.guid,
+                caption: caption,
+                upload_id: uploadId,
+                extra: Configure.Extra(
+                    source_width: size.width,
+                    source_height: size.height),
+                edits: Configure.Edits(crop_original_size: size.asArray())
+            )
+            
+            self.post(endpoint: "media/configure/?", request: request)
+            
         }
     }
     

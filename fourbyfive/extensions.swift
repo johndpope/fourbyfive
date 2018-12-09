@@ -9,6 +9,30 @@
 import Foundation
 import Alamofire
 
+func getCurrentMillis() -> Int64 {
+    return Int64(Date().timeIntervalSince1970 * 1000)
+}
+
+extension URL {
+    
+    func getImageSize() -> Size? {
+        if let provider = CGDataProvider(url: self as CFURL) {
+            if let image = CGImage(jpegDataProviderSource: provider, decode: nil, shouldInterpolate: false, intent: CGColorRenderingIntent.defaultIntent) {
+                    return Size(width: image.width, height: image.height)
+            }
+        }
+        
+        return nil
+    }
+}
+
+extension String {
+    
+    func utf8() -> Data {
+        return self.data(using: String.Encoding.utf8, allowLossyConversion: false)!
+    }
+}
+
 extension String: ParameterEncoding {
     
     public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
